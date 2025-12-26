@@ -15,6 +15,7 @@ import {
   XCircle,
   MapPin,
   MessageCircle,
+  Share2,
 } from "lucide-react";
 // ... (Keep other imports: VoiceAssistant, SmartSearch, etc.) ...
 import VoiceAssistant from "@/components/VoiceAssistant";
@@ -38,10 +39,16 @@ export default function Home() {
   const t = translations[uiLang];
 
   const [formData, setFormData] = useState({
-    age: "", income: "", gender: "Male", caste: "General", state: "MP", occupation: "Student",
+    age: "",
+    income: "",
+    gender: "Male",
+    caste: "General",
+    state: "MP",
+    occupation: "Student",
   });
-  
-  const handleChange = (e: any) => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleChange = (e: any) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const checkEligibility = async () => {
     setLoading(true);
@@ -50,7 +57,11 @@ export default function Home() {
       const res = await fetch("/api/check-eligibility", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, age: Number(formData.age), income: Number(formData.income) }),
+        body: JSON.stringify({
+          ...formData,
+          age: Number(formData.age),
+          income: Number(formData.income),
+        }),
       });
       setResults(await res.json());
     } catch (error) {
@@ -60,7 +71,12 @@ export default function Home() {
     }
   };
 
-  if (status === "loading") return <div className="min-h-screen flex items-center justify-center bg-[#FDFBF7]"><Loader2 className="animate-spin text-rose-500" size={40} /></div>;
+  if (status === "loading")
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#FDFBF7]">
+        <Loader2 className="animate-spin text-rose-500" size={40} />
+      </div>
+    );
   if (status === "unauthenticated") return <LandingPage />;
 
   return (
@@ -79,9 +95,27 @@ export default function Home() {
           Upload. Speak. Search. We handle the rest.
         </p>
         {/* Language Toggles (Keep as is) */}
-         <div className="flex justify-center gap-2 pt-2">
-          <button onClick={() => setUiLang("en")} className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all shadow-sm ${uiLang === "en" ? "bg-slate-900 text-white shadow-slate-300" : "bg-white text-slate-500 border border-slate-200 hover:bg-slate-50"}`}>English</button>
-          <button onClick={() => setUiLang("hi")} className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all shadow-sm ${uiLang === "hi" ? "bg-orange-500 text-white shadow-orange-200" : "bg-white text-slate-500 border border-slate-200 hover:bg-slate-50"}`}>हिंदी</button>
+        <div className="flex justify-center gap-2 pt-2">
+          <button
+            onClick={() => setUiLang("en")}
+            className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all shadow-sm ${
+              uiLang === "en"
+                ? "bg-slate-900 text-white shadow-slate-300"
+                : "bg-white text-slate-500 border border-slate-200 hover:bg-slate-50"
+            }`}
+          >
+            English
+          </button>
+          <button
+            onClick={() => setUiLang("hi")}
+            className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all shadow-sm ${
+              uiLang === "hi"
+                ? "bg-orange-500 text-white shadow-orange-200"
+                : "bg-white text-slate-500 border border-slate-200 hover:bg-slate-50"
+            }`}
+          >
+            हिंदी
+          </button>
         </div>
       </div>
 
@@ -92,70 +126,80 @@ export default function Home() {
           <SmartSearch />
         </div>
 
-        {/* === UPDATED: QUICK ACTION ROW (Using 'navigate' for animation) === */}
-        
+        {/* === UPDATED: QUICK ACTION ROW (4 Columns) === */}
+
         {/* 1. Kendra Widget */}
-        <div 
-          onClick={() => navigate("/kendra")} 
-          className="md:col-span-4 group bg-white rounded-[2rem] p-1.5 border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-cyan-500/10 transition-all duration-500 cursor-pointer relative overflow-hidden h-32 flex items-center"
+        <div
+          onClick={() => navigate("/kendra")}
+          className="md:col-span-6 lg:col-span-3 group bg-white rounded-[2rem] p-1.5 border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-cyan-500/10 transition-all duration-500 cursor-pointer relative overflow-hidden h-32 flex items-center"
         >
-          <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-100 rounded-bl-[2rem] opacity-50 group-hover:scale-110 transition-transform"></div>
-          <div className="p-6 flex items-center justify-between w-full relative z-10">
-            <div className="flex items-center gap-5">
-              <div className="bg-cyan-500 text-white p-4 rounded-2xl shadow-lg shadow-cyan-500/30 group-hover:rotate-6 transition-transform">
-                <MapPin size={28} />
+          <div className="absolute top-0 right-0 w-20 h-20 bg-cyan-100 rounded-bl-[2rem] opacity-50 group-hover:scale-110 transition-transform"></div>
+          <div className="p-5 flex items-center justify-between w-full relative z-10">
+            <div className="flex items-center gap-3">
+              <div className="bg-cyan-500 text-white p-3 rounded-xl shadow-lg shadow-cyan-500/30 group-hover:rotate-6 transition-transform">
+                <MapPin size={20} />
               </div>
               <div>
-                <h3 className="font-bold text-slate-900 text-xl">Find Kendra</h3>
-                <p className="text-sm text-slate-500 font-medium">Locate nearest CSC</p>
+                <h3 className="font-bold text-slate-900 text-base">Kendra</h3>
+                <p className="text-xs text-slate-500 font-medium">Locator</p>
               </div>
-            </div>
-            <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center group-hover:bg-cyan-500 group-hover:text-white transition-colors">
-              <ArrowRight size={24} />
             </div>
           </div>
         </div>
 
         {/* 2. Jan-Manch Widget */}
-        <div 
+        <div
           onClick={() => navigate("/community")}
-          className="md:col-span-4 group bg-white rounded-[2rem] p-1.5 border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-500 cursor-pointer relative overflow-hidden h-32 flex items-center"
+          className="md:col-span-6 lg:col-span-3 group bg-white rounded-[2rem] p-1.5 border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-500 cursor-pointer relative overflow-hidden h-32 flex items-center"
         >
-          <div className="absolute top-0 right-0 w-24 h-24 bg-orange-100 rounded-bl-[2rem] opacity-50 group-hover:scale-110 transition-transform"></div>
-          <div className="p-6 flex items-center justify-between w-full relative z-10">
-            <div className="flex items-center gap-5">
-              <div className="bg-orange-500 text-white p-4 rounded-2xl shadow-lg shadow-orange-500/30 group-hover:-rotate-6 transition-transform">
-                <MessageCircle size={28} />
+          <div className="absolute top-0 right-0 w-20 h-20 bg-orange-100 rounded-bl-[2rem] opacity-50 group-hover:scale-110 transition-transform"></div>
+          <div className="p-5 flex items-center justify-between w-full relative z-10">
+            <div className="flex items-center gap-3">
+              <div className="bg-orange-500 text-white p-3 rounded-xl shadow-lg shadow-orange-500/30 group-hover:-rotate-6 transition-transform">
+                <MessageCircle size={20} />
               </div>
               <div>
-                <h3 className="font-bold text-slate-900 text-xl">Jan-Manch</h3>
-                <p className="text-sm text-slate-500 font-medium">Community Forum</p>
+                <h3 className="font-bold text-slate-900 text-base">Forum</h3>
+                <p className="text-xs text-slate-500 font-medium">Community</p>
               </div>
-            </div>
-            <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center group-hover:bg-orange-500 group-hover:text-white transition-colors">
-              <ArrowRight size={24} />
             </div>
           </div>
         </div>
 
-        {/* 3. Application Tracker Widget */}
-        <div 
+        {/* 3. Tracker Widget */}
+        <div
           onClick={() => navigate("/tracker")}
-          className="md:col-span-4 group bg-white rounded-[2rem] p-1.5 border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 cursor-pointer relative overflow-hidden h-32 flex items-center"
+          className="md:col-span-6 lg:col-span-3 group bg-white rounded-[2rem] p-1.5 border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 cursor-pointer relative overflow-hidden h-32 flex items-center"
         >
-          <div className="absolute top-0 right-0 w-24 h-24 bg-purple-100 rounded-bl-[2rem] opacity-50 group-hover:scale-110 transition-transform"></div>
-          <div className="p-6 flex items-center justify-between w-full relative z-10">
-            <div className="flex items-center gap-5">
-              <div className="bg-purple-500 text-white p-4 rounded-2xl shadow-lg shadow-purple-500/30 group-hover:rotate-6 transition-transform">
-                <LayoutGrid size={28} />
+          <div className="absolute top-0 right-0 w-20 h-20 bg-purple-100 rounded-bl-[2rem] opacity-50 group-hover:scale-110 transition-transform"></div>
+          <div className="p-5 flex items-center justify-between w-full relative z-10">
+            <div className="flex items-center gap-3">
+              <div className="bg-purple-500 text-white p-3 rounded-xl shadow-lg shadow-purple-500/30 group-hover:rotate-6 transition-transform">
+                <LayoutGrid size={20} />
               </div>
               <div>
-                <h3 className="font-bold text-slate-900 text-xl">Tracker</h3>
-                <p className="text-sm text-slate-500 font-medium">Status Check</p>
+                <h3 className="font-bold text-slate-900 text-base">Tracker</h3>
+                <p className="text-xs text-slate-500 font-medium">Status</p>
               </div>
             </div>
-            <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center group-hover:bg-purple-500 group-hover:text-white transition-colors">
-              <ArrowRight size={24} />
+          </div>
+        </div>
+
+        {/* 4. NEW: Graph Widget */}
+        <div
+          onClick={() => navigate("/graph")}
+          className="md:col-span-6 lg:col-span-3 group bg-white rounded-[2rem] p-1.5 border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-teal-500/10 transition-all duration-500 cursor-pointer relative overflow-hidden h-32 flex items-center"
+        >
+          <div className="absolute top-0 right-0 w-20 h-20 bg-teal-100 rounded-bl-[2rem] opacity-50 group-hover:scale-110 transition-transform"></div>
+          <div className="p-5 flex items-center justify-between w-full relative z-10">
+            <div className="flex items-center gap-3">
+              <div className="bg-teal-500 text-white p-3 rounded-xl shadow-lg shadow-teal-500/30 group-hover:-rotate-6 transition-transform">
+                <Share2 size={20} />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-900 text-base">Graph</h3>
+                <p className="text-xs text-slate-500 font-medium">Visualizer</p>
+              </div>
             </div>
           </div>
         </div>
@@ -164,10 +208,16 @@ export default function Home() {
         {/* BLOCK B: Left Column (Tools) */}
         <div className="md:col-span-12 lg:col-span-4 space-y-6">
           <div className="group bg-white rounded-[2rem] p-1.5 border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-500">
-            <VoiceAssistant currentData={formData} onUpdate={(d) => setFormData(d)} />
+            <VoiceAssistant
+              currentData={formData}
+              onUpdate={(d) => setFormData(d)}
+            />
           </div>
           <div className="group bg-white rounded-[2rem] p-1.5 border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-500">
-            <DocUploader onDataExtracted={(d) => setFormData((p) => ({ ...p, ...d }))} currentFormData={formData} />
+            <DocUploader
+              onDataExtracted={(d) => setFormData((p) => ({ ...p, ...d }))}
+              currentFormData={formData}
+            />
           </div>
           <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/50">
             <h3 className="font-bold text-slate-900 text-lg mb-6 flex items-center gap-2">
@@ -177,39 +227,99 @@ export default function Home() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                   <label className="text-xs font-bold text-slate-400 ml-2 uppercase">Age</label>
-                   <input name="age" type="number" value={formData.age} onChange={handleChange} className="w-full bg-slate-50 rounded-xl px-4 py-3 font-bold text-slate-700 outline-none focus:ring-2 focus:ring-rose-500 transition-all" placeholder="25" />
+                  <label className="text-xs font-bold text-slate-400 ml-2 uppercase">
+                    Age
+                  </label>
+                  <input
+                    name="age"
+                    type="number"
+                    value={formData.age}
+                    onChange={handleChange}
+                    className="w-full bg-slate-50 rounded-xl px-4 py-3 font-bold text-slate-700 outline-none focus:ring-2 focus:ring-rose-500 transition-all"
+                    placeholder="25"
+                  />
                 </div>
                 <div>
-                   <label className="text-xs font-bold text-slate-400 ml-2 uppercase">Gender</label>
-                   <select name="gender" value={formData.gender} onChange={handleChange} className="w-full bg-slate-50 rounded-xl px-4 py-3 font-bold text-slate-700 outline-none focus:ring-2 focus:ring-rose-500 transition-all appearance-none cursor-pointer">
-                      <option>Male</option><option>Female</option><option>Other</option>
-                   </select>
+                  <label className="text-xs font-bold text-slate-400 ml-2 uppercase">
+                    Gender
+                  </label>
+                  <select
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleChange}
+                    className="w-full bg-slate-50 rounded-xl px-4 py-3 font-bold text-slate-700 outline-none focus:ring-2 focus:ring-rose-500 transition-all appearance-none cursor-pointer"
+                  >
+                    <option>Male</option>
+                    <option>Female</option>
+                    <option>Other</option>
+                  </select>
                 </div>
               </div>
               <div className="relative">
-                <label className="text-xs font-bold text-slate-400 ml-2 uppercase">Income (₹)</label>
+                <label className="text-xs font-bold text-slate-400 ml-2 uppercase">
+                  Income (₹)
+                </label>
                 <div className="relative">
-                   <Wallet className="absolute left-4 top-3.5 text-slate-400" size={18} />
-                   <input name="income" type="number" value={formData.income} onChange={handleChange} className="w-full bg-slate-50 rounded-xl pl-11 pr-4 py-3 font-bold text-slate-700 outline-none focus:ring-2 focus:ring-rose-500 transition-all" placeholder="150000" />
+                  <Wallet
+                    className="absolute left-4 top-3.5 text-slate-400"
+                    size={18}
+                  />
+                  <input
+                    name="income"
+                    type="number"
+                    value={formData.income}
+                    onChange={handleChange}
+                    className="w-full bg-slate-50 rounded-xl pl-11 pr-4 py-3 font-bold text-slate-700 outline-none focus:ring-2 focus:ring-rose-500 transition-all"
+                    placeholder="150000"
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                 <div>
-                   <label className="text-xs font-bold text-slate-400 ml-2 uppercase">Caste</label>
-                   <select name="caste" value={formData.caste} onChange={handleChange} className="w-full bg-slate-50 rounded-xl px-4 py-3 font-bold text-slate-700 outline-none focus:ring-2 focus:ring-rose-500">
-                     <option>General</option><option>OBC</option><option>SC</option><option>ST</option>
-                   </select>
-                 </div>
-                 <div>
-                   <label className="text-xs font-bold text-slate-400 ml-2 uppercase">Occupation</label>
-                   <select name="occupation" value={formData.occupation} onChange={handleChange} className="w-full bg-slate-50 rounded-xl px-4 py-3 font-bold text-slate-700 outline-none focus:ring-2 focus:ring-rose-500">
-                     <option>Student</option><option>Farmer</option><option>Unemployed</option><option>Business</option>
-                   </select>
-                 </div>
+                <div>
+                  <label className="text-xs font-bold text-slate-400 ml-2 uppercase">
+                    Caste
+                  </label>
+                  <select
+                    name="caste"
+                    value={formData.caste}
+                    onChange={handleChange}
+                    className="w-full bg-slate-50 rounded-xl px-4 py-3 font-bold text-slate-700 outline-none focus:ring-2 focus:ring-rose-500"
+                  >
+                    <option>General</option>
+                    <option>OBC</option>
+                    <option>SC</option>
+                    <option>ST</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-slate-400 ml-2 uppercase">
+                    Occupation
+                  </label>
+                  <select
+                    name="occupation"
+                    value={formData.occupation}
+                    onChange={handleChange}
+                    className="w-full bg-slate-50 rounded-xl px-4 py-3 font-bold text-slate-700 outline-none focus:ring-2 focus:ring-rose-500"
+                  >
+                    <option>Student</option>
+                    <option>Farmer</option>
+                    <option>Unemployed</option>
+                    <option>Business</option>
+                  </select>
+                </div>
               </div>
-              <button onClick={checkEligibility} disabled={loading} className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-slate-900/20 flex justify-center items-center gap-2 mt-2">
-                 {loading ? <Loader2 className="animate-spin" /> : <>Check Eligibility <ArrowRight size={18}/></>}
+              <button
+                onClick={checkEligibility}
+                disabled={loading}
+                className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-slate-900/20 flex justify-center items-center gap-2 mt-2"
+              >
+                {loading ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  <>
+                    Check Eligibility <ArrowRight size={18} />
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -217,67 +327,108 @@ export default function Home() {
 
         {/* BLOCK C: The Results Feed (Keep unchanged) */}
         <div className="md:col-span-12 lg:col-span-8">
-           {!results ? (
-             <div className="h-full min-h-[600px] flex flex-col items-center justify-center bg-white rounded-[2.5rem] border border-slate-100 p-12 text-center shadow-xl shadow-slate-200/50">
-                <div className="w-32 h-32 bg-rose-50 rounded-full flex items-center justify-center mb-6 animate-pulse">
-                   <LayoutGrid className="text-rose-400" size={48} />
+          {!results ? (
+            <div className="h-full min-h-[600px] flex flex-col items-center justify-center bg-white rounded-[2.5rem] border border-slate-100 p-12 text-center shadow-xl shadow-slate-200/50">
+              <div className="w-32 h-32 bg-rose-50 rounded-full flex items-center justify-center mb-6 animate-pulse">
+                <LayoutGrid className="text-rose-400" size={48} />
+              </div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">
+                Waiting for Data
+              </h3>
+              <p className="text-slate-400">
+                Your personalized scheme feed will appear here.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
+              {/* ... (Keep results display logic) ... */}
+              <div className="flex justify-between items-center bg-slate-900 text-white p-8 rounded-[2rem] shadow-2xl">
+                <div>
+                  <h3 className="text-2xl font-bold flex items-center gap-2">
+                    <CheckCircle className="text-emerald-400" /> Eligibility
+                    Report
+                  </h3>
+                  <p className="text-slate-400 mt-1">{results.summary}</p>
                 </div>
-                <h3 className="text-2xl font-bold text-slate-900 mb-2">Waiting for Data</h3>
-                <p className="text-slate-400">Your personalized scheme feed will appear here.</p>
-             </div>
-           ) : (
-             <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
-                {/* ... (Keep results display logic) ... */}
-                <div className="flex justify-between items-center bg-slate-900 text-white p-8 rounded-[2rem] shadow-2xl">
-                   <div>
-                     <h3 className="text-2xl font-bold flex items-center gap-2"><CheckCircle className="text-emerald-400"/> Eligibility Report</h3>
-                     <p className="text-slate-400 mt-1">{results.summary}</p>
-                   </div>
-                   <button onClick={() => generatePDF({ user: formData, eligibleSchemes: results.eligible })} className="bg-white/10 hover:bg-white/20 p-3 rounded-full transition-all border border-white/10">
-                     <Download size={20} />
-                   </button>
-                </div>
-                <div className="grid md:grid-cols-2 gap-4">
-                   {results.eligible.map((scheme: any, idx: number) => (
-                      <div key={idx} onClick={() => setSelectedScheme(scheme)} className="group bg-white p-6 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:scale-[1.02] transition-all cursor-pointer relative overflow-hidden">
-                         <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <Sparkles className="text-rose-500" size={60} />
-                         </div>
-                         <span className="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">95% Match</span>
-                         <h3 className="text-xl font-bold text-slate-900 mt-4 mb-2 leading-tight pr-4">{scheme.scheme_name}</h3>
-                         <div className="flex items-center gap-2 text-rose-500 font-bold text-sm group-hover:gap-3 transition-all mt-4">
-                            View Details <ArrowRight size={16} />
-                         </div>
-                      </div>
-                   ))}
-                </div>
-                {results.ineligible_preview.length > 0 && (
-                  <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm opacity-80 hover:opacity-100 transition-opacity">
-                    <h3 className="font-bold text-slate-400 uppercase text-xs tracking-wider mb-4 flex items-center gap-2"><XCircle size={14}/> Not Eligible</h3>
-                    <div className="space-y-3">
-                      {results.ineligible_preview.slice(0, 3).map((item: any, i: number) => (
-                        <div key={i} className="flex justify-between items-center text-sm">
-                           <span className="font-medium text-slate-600">{item.name}</span>
-                           <span className="text-red-400 text-xs bg-red-50 px-2 py-1 rounded">{item.reason}</span>
-                        </div>
-                      ))}
+                <button
+                  onClick={() =>
+                    generatePDF({
+                      user: formData,
+                      eligibleSchemes: results.eligible,
+                    })
+                  }
+                  className="bg-white/10 hover:bg-white/20 p-3 rounded-full transition-all border border-white/10"
+                >
+                  <Download size={20} />
+                </button>
+              </div>
+              <div className="grid md:grid-cols-2 gap-4">
+                {results.eligible.map((scheme: any, idx: number) => (
+                  <div
+                    key={idx}
+                    onClick={() => setSelectedScheme(scheme)}
+                    className="group bg-white p-6 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:scale-[1.02] transition-all cursor-pointer relative overflow-hidden"
+                  >
+                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                      <Sparkles className="text-rose-500" size={60} />
+                    </div>
+                    <span className="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
+                      95% Match
+                    </span>
+                    <h3 className="text-xl font-bold text-slate-900 mt-4 mb-2 leading-tight pr-4">
+                      {scheme.scheme_name}
+                    </h3>
+                    <div className="flex items-center gap-2 text-rose-500 font-bold text-sm group-hover:gap-3 transition-all mt-4">
+                      View Details <ArrowRight size={16} />
                     </div>
                   </div>
-                )}
-             </div>
-           )}
+                ))}
+              </div>
+              {results.ineligible_preview.length > 0 && (
+                <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm opacity-80 hover:opacity-100 transition-opacity">
+                  <h3 className="font-bold text-slate-400 uppercase text-xs tracking-wider mb-4 flex items-center gap-2">
+                    <XCircle size={14} /> Not Eligible
+                  </h3>
+                  <div className="space-y-3">
+                    {results.ineligible_preview
+                      .slice(0, 3)
+                      .map((item: any, i: number) => (
+                        <div
+                          key={i}
+                          className="flex justify-between items-center text-sm"
+                        >
+                          <span className="font-medium text-slate-600">
+                            {item.name}
+                          </span>
+                          <span className="text-red-400 text-xs bg-red-50 px-2 py-1 rounded">
+                            {item.reason}
+                          </span>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* BLOCK D: Analytics (Keep unchanged) */}
         <div className="md:col-span-12 mt-8">
-           <div className="bg-white rounded-[2.5rem] p-10 border border-slate-100 shadow-xl shadow-slate-200/40">
-              <h3 className="font-bold text-slate-900 text-xl mb-8">Platform Intelligence</h3>
-              <AnalyticsDashboard />
-           </div>
+          <div className="bg-white rounded-[2.5rem] p-10 border border-slate-100 shadow-xl shadow-slate-200/40">
+            <h3 className="font-bold text-slate-900 text-xl mb-8">
+              Platform Intelligence
+            </h3>
+            <AnalyticsDashboard />
+          </div>
         </div>
       </div>
 
-      {selectedScheme && <SchemeModal scheme={selectedScheme} onClose={() => setSelectedScheme(null)} />}
+      {selectedScheme && (
+        <SchemeModal
+          scheme={selectedScheme}
+          onClose={() => setSelectedScheme(null)}
+        />
+      )}
     </main>
   );
 }
