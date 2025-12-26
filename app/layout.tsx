@@ -5,6 +5,7 @@ import Provider from "@/components/SessionProvider";
 import AuthButton from "@/components/AuthButton";
 import Footer from "@/components/Footer"; 
 import TransitionProvider from "@/components/TransitionProvider"; // IMPORT THIS
+import ChatBot from "@/components/ChatBot";
 
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
@@ -49,6 +50,9 @@ export default function RootLayout({
               </div>
               <Footer />
             </div>
+
+            {/* GLOBAL CHATBOT WIDGET */}
+            <ChatBot />
 
           </TransitionProvider>
         </Provider>
