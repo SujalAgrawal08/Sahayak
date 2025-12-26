@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google"; 
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Provider from "@/components/SessionProvider";
 import AuthButton from "@/components/AuthButton";
-import Footer from "@/components/Footer"; 
+import Footer from "@/components/Footer";
 import TransitionProvider from "@/components/TransitionProvider"; // IMPORT THIS
 import ChatBot from "@/components/ChatBot";
+import SyncManager from "@/components/SyncManager";
 
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Sahayak X",
   description: "Next-Gen Scheme Discovery",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
@@ -25,7 +27,6 @@ export default function RootLayout({
         <Provider>
           {/* WRAP EVERYTHING IN TRANSITION PROVIDER */}
           <TransitionProvider>
-            
             {/* Floating Nav */}
             <div className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
               <nav className="pointer-events-auto bg-white/70 backdrop-blur-2xl border border-white/60 shadow-xl shadow-black/5 rounded-full px-2 py-2 flex items-center justify-between gap-6 w-full max-w-4xl transition-all hover:bg-white/90">
@@ -38,22 +39,20 @@ export default function RootLayout({
                   </span>
                 </div>
                 <div className="flex items-center gap-2 pr-1">
-                   <div className="h-6 w-px bg-slate-200 hidden sm:block"></div>
-                   <AuthButton />
+                  <div className="h-6 w-px bg-slate-200 hidden sm:block"></div>
+                  <AuthButton />
                 </div>
               </nav>
             </div>
 
             <div className="min-h-screen flex flex-col">
-              <div className="flex-grow">
-                {children}
-              </div>
+              <div className="flex-grow">{children}</div>
               <Footer />
             </div>
 
             {/* GLOBAL CHATBOT WIDGET */}
             <ChatBot />
-
+            <SyncManager />
           </TransitionProvider>
         </Provider>
       </body>

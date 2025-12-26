@@ -16,6 +16,7 @@ import {
   MapPin,
   MessageCircle,
   Share2,
+  Database,
 } from "lucide-react";
 // ... (Keep other imports: VoiceAssistant, SmartSearch, etc.) ...
 import VoiceAssistant from "@/components/VoiceAssistant";
@@ -126,80 +127,84 @@ export default function Home() {
           <SmartSearch />
         </div>
 
-        {/* === UPDATED: QUICK ACTION ROW (4 Columns) === */}
+        {/* === UPDATED: QUICK ACTION ROW (5 Columns) === */}
+        {/* We now have 5 items. Let's make them scrollable on mobile or grid on desktop */}
 
-        {/* 1. Kendra Widget */}
-        <div
-          onClick={() => navigate("/kendra")}
-          className="md:col-span-6 lg:col-span-3 group bg-white rounded-[2rem] p-1.5 border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-cyan-500/10 transition-all duration-500 cursor-pointer relative overflow-hidden h-32 flex items-center"
-        >
-          <div className="absolute top-0 right-0 w-20 h-20 bg-cyan-100 rounded-bl-[2rem] opacity-50 group-hover:scale-110 transition-transform"></div>
-          <div className="p-5 flex items-center justify-between w-full relative z-10">
-            <div className="flex items-center gap-3">
-              <div className="bg-cyan-500 text-white p-3 rounded-xl shadow-lg shadow-cyan-500/30 group-hover:rotate-6 transition-transform">
+        <div className="md:col-span-12 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {/* 1. Kendra Widget */}
+          <div
+            onClick={() => navigate("/kendra")}
+            className="group bg-white rounded-[2rem] p-1.5 border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-cyan-500/10 transition-all duration-500 cursor-pointer relative overflow-hidden h-32 flex items-center"
+          >
+            <div className="absolute top-0 right-0 w-16 h-16 bg-cyan-100 rounded-bl-[2rem] opacity-50 group-hover:scale-110 transition-transform"></div>
+            <div className="p-4 flex flex-col justify-center h-full relative z-10 w-full">
+              <div className="bg-cyan-500 text-white p-2.5 rounded-xl shadow-lg shadow-cyan-500/30 w-fit mb-2 group-hover:rotate-6 transition-transform">
                 <MapPin size={20} />
               </div>
-              <div>
-                <h3 className="font-bold text-slate-900 text-base">Kendra</h3>
-                <p className="text-xs text-slate-500 font-medium">Locator</p>
-              </div>
+              <h3 className="font-bold text-slate-900 text-sm">Kendra</h3>
+              <p className="text-[10px] text-slate-500 font-medium">Locator</p>
             </div>
           </div>
-        </div>
 
-        {/* 2. Jan-Manch Widget */}
-        <div
-          onClick={() => navigate("/community")}
-          className="md:col-span-6 lg:col-span-3 group bg-white rounded-[2rem] p-1.5 border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-500 cursor-pointer relative overflow-hidden h-32 flex items-center"
-        >
-          <div className="absolute top-0 right-0 w-20 h-20 bg-orange-100 rounded-bl-[2rem] opacity-50 group-hover:scale-110 transition-transform"></div>
-          <div className="p-5 flex items-center justify-between w-full relative z-10">
-            <div className="flex items-center gap-3">
-              <div className="bg-orange-500 text-white p-3 rounded-xl shadow-lg shadow-orange-500/30 group-hover:-rotate-6 transition-transform">
+          {/* 2. Jan-Manch Widget */}
+          <div
+            onClick={() => navigate("/community")}
+            className="group bg-white rounded-[2rem] p-1.5 border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-500 cursor-pointer relative overflow-hidden h-32 flex items-center"
+          >
+            <div className="absolute top-0 right-0 w-16 h-16 bg-orange-100 rounded-bl-[2rem] opacity-50 group-hover:scale-110 transition-transform"></div>
+            <div className="p-4 flex flex-col justify-center h-full relative z-10 w-full">
+              <div className="bg-orange-500 text-white p-2.5 rounded-xl shadow-lg shadow-orange-500/30 w-fit mb-2 group-hover:-rotate-6 transition-transform">
                 <MessageCircle size={20} />
               </div>
-              <div>
-                <h3 className="font-bold text-slate-900 text-base">Forum</h3>
-                <p className="text-xs text-slate-500 font-medium">Community</p>
-              </div>
+              <h3 className="font-bold text-slate-900 text-sm">Jan-Manch</h3>
+              <p className="text-[10px] text-slate-500 font-medium">Forum</p>
             </div>
           </div>
-        </div>
 
-        {/* 3. Tracker Widget */}
-        <div
-          onClick={() => navigate("/tracker")}
-          className="md:col-span-6 lg:col-span-3 group bg-white rounded-[2rem] p-1.5 border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 cursor-pointer relative overflow-hidden h-32 flex items-center"
-        >
-          <div className="absolute top-0 right-0 w-20 h-20 bg-purple-100 rounded-bl-[2rem] opacity-50 group-hover:scale-110 transition-transform"></div>
-          <div className="p-5 flex items-center justify-between w-full relative z-10">
-            <div className="flex items-center gap-3">
-              <div className="bg-purple-500 text-white p-3 rounded-xl shadow-lg shadow-purple-500/30 group-hover:rotate-6 transition-transform">
+          {/* 3. Tracker Widget */}
+          <div
+            onClick={() => navigate("/tracker")}
+            className="group bg-white rounded-[2rem] p-1.5 border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 cursor-pointer relative overflow-hidden h-32 flex items-center"
+          >
+            <div className="absolute top-0 right-0 w-16 h-16 bg-purple-100 rounded-bl-[2rem] opacity-50 group-hover:scale-110 transition-transform"></div>
+            <div className="p-4 flex flex-col justify-center h-full relative z-10 w-full">
+              <div className="bg-purple-500 text-white p-2.5 rounded-xl shadow-lg shadow-purple-500/30 w-fit mb-2 group-hover:rotate-6 transition-transform">
                 <LayoutGrid size={20} />
               </div>
-              <div>
-                <h3 className="font-bold text-slate-900 text-base">Tracker</h3>
-                <p className="text-xs text-slate-500 font-medium">Status</p>
-              </div>
+              <h3 className="font-bold text-slate-900 text-sm">Tracker</h3>
+              <p className="text-[10px] text-slate-500 font-medium">Status</p>
             </div>
           </div>
-        </div>
 
-        {/* 4. NEW: Graph Widget */}
-        <div
-          onClick={() => navigate("/graph")}
-          className="md:col-span-6 lg:col-span-3 group bg-white rounded-[2rem] p-1.5 border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-teal-500/10 transition-all duration-500 cursor-pointer relative overflow-hidden h-32 flex items-center"
-        >
-          <div className="absolute top-0 right-0 w-20 h-20 bg-teal-100 rounded-bl-[2rem] opacity-50 group-hover:scale-110 transition-transform"></div>
-          <div className="p-5 flex items-center justify-between w-full relative z-10">
-            <div className="flex items-center gap-3">
-              <div className="bg-teal-500 text-white p-3 rounded-xl shadow-lg shadow-teal-500/30 group-hover:-rotate-6 transition-transform">
+          {/* 4. Graph Widget */}
+          <div
+            onClick={() => navigate("/graph")}
+            className="group bg-white rounded-[2rem] p-1.5 border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-teal-500/10 transition-all duration-500 cursor-pointer relative overflow-hidden h-32 flex items-center"
+          >
+            <div className="absolute top-0 right-0 w-16 h-16 bg-teal-100 rounded-bl-[2rem] opacity-50 group-hover:scale-110 transition-transform"></div>
+            <div className="p-4 flex flex-col justify-center h-full relative z-10 w-full">
+              <div className="bg-teal-500 text-white p-2.5 rounded-xl shadow-lg shadow-teal-500/30 w-fit mb-2 group-hover:-rotate-6 transition-transform">
                 <Share2 size={20} />
               </div>
-              <div>
-                <h3 className="font-bold text-slate-900 text-base">Graph</h3>
-                <p className="text-xs text-slate-500 font-medium">Visualizer</p>
+              <h3 className="font-bold text-slate-900 text-sm">Graph</h3>
+              <p className="text-[10px] text-slate-500 font-medium">
+                Visualizer
+              </p>
+            </div>
+          </div>
+
+          {/* 5. NEW: Vault Widget */}
+          <div
+            onClick={() => navigate("/vault")}
+            className="group bg-white rounded-[2rem] p-1.5 border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-slate-500/10 transition-all duration-500 cursor-pointer relative overflow-hidden h-32 flex items-center"
+          >
+            <div className="absolute top-0 right-0 w-16 h-16 bg-slate-200 rounded-bl-[2rem] opacity-50 group-hover:scale-110 transition-transform"></div>
+            <div className="p-4 flex flex-col justify-center h-full relative z-10 w-full">
+              <div className="bg-slate-700 text-white p-2.5 rounded-xl shadow-lg shadow-slate-700/30 w-fit mb-2 group-hover:rotate-6 transition-transform">
+                <Database size={20} />
               </div>
+              <h3 className="font-bold text-slate-900 text-sm">Vault</h3>
+              <p className="text-[10px] text-slate-500 font-medium">Offline</p>
             </div>
           </div>
         </div>

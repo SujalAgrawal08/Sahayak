@@ -1,0 +1,15 @@
+{
+  "name": "Sahayak X",
+  "short_name": "Sahayak",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#FDFBF7",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    }
+  ]
+}

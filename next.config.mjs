@@ -1,4 +1,15 @@
 /** @type {import('next').NextConfig} */
+import withPWAInit from "next-pwa";
+
+// 1. Configure PWA (Service Worker)
+const withPWA = withPWAInit({
+  dest: "public",         // Where to put the service worker file
+  register: true,         // Register automatically
+  skipWaiting: true,      // Update cache immediately
+  disable: process.env.NODE_ENV === "development", // Disable in dev to prevent caching confusion
+});
+
+// 2. Your Existing Next.js Configuration
 const nextConfig = {
   reactStrictMode: true,
   
@@ -11,7 +22,6 @@ const nextConfig = {
       ...config.resolve.alias,
       "sharp$": false,
       "onnxruntime-node$": false,
-      // FIX: Tell webpack to ignore 'canvas' (it is built-in to browser)
       canvas: false,
     };
     return config;
@@ -27,4 +37,5 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+// 3. Wrap and Export
+export default withPWA(nextConfig);
