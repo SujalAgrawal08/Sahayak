@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import Groq from "groq-sdk";
-import Tesseract from 'tesseract.js';
+import { createWorker } from 'tesseract.js'; // 1. Import createWorker
 import PDFParser from 'pdf2json';
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
@@ -32,14 +32,12 @@ export async function POST(req: Request) {
       try {
         extractedText = await parsePDFText(buffer);
         
-        // CHECK: Is it a Scanned PDF? (Empty or extremely short text)
         if (extractedText.trim().length < 50) {
            console.log("⚠️ Scanned PDF detected (No text layer).");
-           // Return specific error to frontend so it can prompt user
            return NextResponse.json({ 
              error: "SCANNED_PDF", 
              message: "This PDF appears to be a scanned image. Please upload a JPG/PNG photo of it instead." 
-           }, { status: 422 }); // 422 = Unprocessable Entity
+           }, { status: 422 });
         }
       } catch (pdfError) {
         console.error("PDF Fail:", pdfError);
@@ -47,10 +45,24 @@ export async function POST(req: Request) {
       }
     } else if (file.type.startsWith('image/')) {
       try {
-        const { data: { text } } = await Tesseract.recognize(buffer, 'eng');
+        // 2. TESSERACT SERVERLESS FIX (CDN LOADING)
+        console.log("🖼️ Starting OCR with CDN binaries...");
+        
+        const worker = await createWorker('eng', 1, {
+          // Force load binaries from CDN to bypass Vercel file system issues
+          corePath: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.0/tesseract-core.wasm.js',
+          workerPath: 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/worker.min.js',
+          logger: m => console.log(m)
+        });
+
+        const { data: { text } } = await worker.recognize(buffer);
         extractedText = text;
-      } catch (ocrError) {
-        return NextResponse.json({ error: "OCR failed." }, { status: 500 });
+        
+        await worker.terminate(); // Clean up memory
+        
+      } catch (ocrError: any) {
+        console.error("OCR Failed:", ocrError);
+        return NextResponse.json({ error: "OCR extraction failed. Try a clearer image." }, { status: 500 });
       }
     }
 
@@ -58,7 +70,7 @@ export async function POST(req: Request) {
     try { extractedText = decodeURIComponent(extractedText); } catch(e) {}
     extractedText = extractedText.replace(/\s+/g, ' ').trim();
     
-    // 2. INTELLIGENCE
+    // 2. INTELLIGENCE (LLM)
     const today = new Date();
     const dateString = today.toISOString().split('T')[0];
     let systemPrompt = "";
