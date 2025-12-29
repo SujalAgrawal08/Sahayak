@@ -76,10 +76,8 @@ export function checkEligibility(user: UserProfile, scheme: IScheme): Eligibilit
   return {
     scheme_id: scheme._id.toString(),
     scheme_name: scheme.name,
-    // PASS DATA FROM DB TO FRONTEND:
     description: scheme.description, 
-    benefits: scheme.benefits || [], // Assuming your Scheme model has this
-    // ----------------------------
+    benefits: (scheme as any).benefits || [],
     eligible: isEligible,
     reasons: reasons,
     missing_docs: isEligible ? scheme.required_docs : []
