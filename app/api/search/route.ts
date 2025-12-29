@@ -40,7 +40,7 @@ export async function POST(req: Request) {
         { name: { $regex: searchTerms.join("|"), $options: "i" } },
         { description: { $regex: searchTerms.join("|"), $options: "i" } },
         // Also check if occupation array matches any keyword (e.g. "Farmer")
-        { occupation: { $in: searchTerms.map(t => new RegExp(t, "i")) } }
+        { occupation: { $in: searchTerms.map((t: string) => new RegExp(t, "i")) } }
       ]
     }).limit(5);
 
