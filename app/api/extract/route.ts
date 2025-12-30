@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import Groq from "groq-sdk";
 import { createWorker } from 'tesseract.js'; // 1. Import createWorker
 import PDFParser from 'pdf2json';
-
+import path from 'path';
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 // Helper: Standard PDF Text Extractor
@@ -49,9 +49,7 @@ export async function POST(req: Request) {
         console.log("🖼️ Starting OCR with CDN binaries...");
         
         const worker = await createWorker('eng', 1, {
-          // Force load binaries from CDN to bypass Vercel file system issues
-          corePath: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.0/tesseract-core.wasm.js',
-          workerPath: 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/worker.min.js',
+          cachePath: path.join('/tmp'), // <--- CRITICAL: Vercel only allows writing here
           logger: m => console.log(m)
         });
 

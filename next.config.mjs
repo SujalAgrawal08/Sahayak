@@ -12,7 +12,7 @@ const nextConfig = {
   reactStrictMode: true,
   
   experimental: {
-    // UPDATED: Removed 'pdf-parse', added 'pdf2json'
+    // 1. Keep your existing external packages
     serverComponentsExternalPackages: [
       'mongoose', 
       '@xenova/transformers', 
@@ -20,6 +20,10 @@ const nextConfig = {
       'pdf2json',
       'tesseract.js', 
     ],
+    // 2. NEW: Force Vercel to include Tesseract WASM files in the build
+    outputFileTracingIncludes: {
+      '/api/**/*': ['./node_modules/tesseract.js-core/**/*.wasm', './node_modules/**/*.wasm']
+    }
   },
 
   webpack: (config) => {
