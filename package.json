@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed": "ts-node --compiler-options \"{\\\"module\\\":\\\"commonjs\\\"}\" scripts/seedApps.ts"
+    "seed": "ts-node --compiler-options \"{\\\"module\\\":\\\"commonjs\\\"}\" scripts/seedApps.ts",
+    "seed:embeddings": "ts-node --compiler-options \"{\\\"module\\\":\\\"commonjs\\\"}\" scripts/seedWithEmbeddings.ts",
+    "evaluate": "ts-node --compiler-options \"{\\\"module\\\":\\\"commonjs\\\"}\" scripts/evaluateSearch.ts"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",

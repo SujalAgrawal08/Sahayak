@@ -78,7 +78,7 @@ Intelligent OCR-powered document analysis for auto-eligibility verification
 <td width="33%" valign="top">
 
 ### 🤖 Sahayak Sarathi
-Bilingual AI chatbot with RAG + knowledge fallback system
+Bilingual AI chatbot with Semantic RAG + Hybrid Search
 
 </td>
 </tr>
@@ -86,13 +86,13 @@ Bilingual AI chatbot with RAG + knowledge fallback system
 <td width="33%" valign="top">
 
 ### 🎙️ Project Vaani
-Voice interface breaking literacy barriers with speech-to-text
+Voice navigation (5 Intents + TTS) breaking literacy barriers
 
 </td>
 <td width="33%" valign="top">
 
 ### 📍 Sahayak Kendra
-Geo-locator for finding nearby help centers and CSCs
+Geo-locator using MongoDB `$geoNear` for proximity ranking
 
 </td>
 <td width="33%" valign="top">
@@ -135,7 +135,8 @@ Comprehensive platform intelligence & insights
 | **Styling** | Tailwind CSS | Glassmorphism UI design |
 | **Database** | MongoDB Atlas | Schemes, users & logs storage |
 | **Auth** | NextAuth.js v4 | Google OAuth implementation |
-| **AI/LLM** | Groq (Llama-3-70b) | Ultra-fast NLP inference |
+| **Search Engine** | MiniLM-L6-v2 Embeddings | Local hybrid semantic search |
+| **AI/LLM** | Groq (Llama-3-70b) | Ultra-fast NLP inference & RAG |
 | **OCR** | Tesseract.js | Server-side document scanning |
 | **Deployment** | Vercel | Serverless edge hosting |
 
@@ -212,15 +213,39 @@ graph TB
 └─────────────┘     └──────────────┘      └─────────────┘      └──────────────┘
      PDF/Image         Raw Text            AI Extraction          Clean Data
 ```
-### 3. Sahayak Sarathi — Chatbot Architecture (RAG + Fallback)
+### 3. Smart Semantic Search Pipeline
+
+```
+User Query (Text)
+    │
+    ▼
+┌─────────────────────────┐
+│ @xenova/transformers    │────▶ Generates 384-dim Vector (MiniLM-L6-v2)
+└─────────────────────────┘
+    │
+    ▼
+┌─────────────────────────┐
+│ In-Memory Cosine Sim    │────▶ Compares Query Vector with Cached Scheme Vectors
+└─────────────────────────┘
+    │
+    ▼
+┌─────────────────────────┐
+│ Hybrid Scoring          │────▶ 70% Semantic Score + 30% Keyword Score
+└─────────────────────────┘
+    │
+    ▼
+[ Returns Top-K Ranked Schemes ]
+```
+
+### 4. Sahayak Sarathi — Chatbot Architecture (Semantic RAG)
 
 ```
 User Query
     │
     ▼
 ┌─────────────────────┐
-│  MongoDB Lookup     │──── Found ────▶ Inject context into prompt
-│  (Semantic Search)  │
+│  Vector Search      │──── Found ────▶ Inject context into prompt
+│  (Hybrid Semantic)  │
 └─────────────────────┘
     │
     │ Not Found
@@ -320,7 +345,8 @@ sahayak-x/
 │   │   └── extract/        # Project Netra (OCR + parsing)
 │   │
 │   ├── 📁 components/
-│   │   ├── AnalyticsDashboard.tsx
+│   │   ├── VoiceAssistant.tsx  # Voice interface (STT + TTS)
+│   │   ├── KendraMap.tsx       # Leaflet maps + Distance tracking
 │   │   ├── ChatBot.tsx
 │   │   └── LandingPage.tsx
 │   │
@@ -328,8 +354,16 @@ sahayak-x/
 │   └── page.tsx            # Home page
 │
 ├── 📁 lib/
+│   ├── vectorSearch.ts     # Hybrid Cosine Similarity Engine
+│   ├── embedding.ts        # MiniLM-L6-v2 Local Embeddings
+│   ├── voiceCommands.ts    # Intent classifier & speech logic
+│   ├── metrics.ts          # P@K, R@K, MRR evaluation metrics
 │   ├── rulesEngine.ts      # Eligibility check logic
 │   └── mongodb.ts          # Database connection helper
+│
+├── 📁 scripts/
+│   ├── seedWithEmbeddings.ts # Database scheme seeding
+│   └── evaluateSearch.ts     # Search quality testing
 │
 ├── 📁 public/              # Static assets & PWA icons
 │

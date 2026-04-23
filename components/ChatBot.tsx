@@ -71,6 +71,8 @@ export default function ChatBot() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             className="fixed bottom-6 right-6 z-50 w-[90vw] md:w-[380px] h-[550px] max-h-[80vh] bg-white rounded-xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden font-sans"
+            role="dialog"
+            aria-label="Sahayak Sarathi AI Chatbot"
           >
             {/* CLEAN HEADER */}
             <div className="bg-white border-b border-slate-100 p-4 flex justify-between items-center">
@@ -94,7 +96,7 @@ export default function ChatBot() {
             </div>
 
             {/* MESSAGES AREA */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50" ref={scrollRef}>
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50" ref={scrollRef} role="log" aria-live="polite" aria-label="Chat messages">
               {messages.map((m, i) => (
                 <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div 
@@ -154,11 +156,14 @@ export default function ChatBot() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                  aria-label="Type your question about government schemes"
+                  id="chatbot-input"
                 />
                 <button 
                   onClick={handleSend}
                   disabled={loading || !input.trim()}
                   className="bg-slate-900 text-white p-2.5 rounded-lg hover:bg-slate-800 disabled:opacity-50 transition-colors"
+                  aria-label="Send message"
                 >
                   <Send size={16} />
                 </button>

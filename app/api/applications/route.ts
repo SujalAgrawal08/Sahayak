@@ -3,14 +3,14 @@ import mongoose from 'mongoose';
 import Application from '@/models/Application';
 
 export async function GET() {
-  await mongoose.connect(process.env.MONGODB_URI!);
+  await mongoose.connect(process.env.MONGODB_URI!);  // should be dbConnect()
   const apps = await Application.find().sort({ updated_on: -1 });
   return NextResponse.json(apps);
 }
 
 export async function PUT(req: Request) {
   try {
-    await mongoose.connect(process.env.MONGODB_URI!);
+    await mongoose.connect(process.env.MONGODB_URI!);  // should be dbConnect()
     const { id, status } = await req.json();
     
     await Application.findByIdAndUpdate(id, { 

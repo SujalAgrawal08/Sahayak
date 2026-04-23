@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import Groq from "groq-sdk";
 import mongoose from 'mongoose';
-import Scheme from '@/models/Scheme';
+import { semanticSearch } from '@/lib/vectorSearch';
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -9,41 +9,38 @@ export async function POST(req: Request) {
   try {
     const { message, history } = await req.json();
 
-    // 1. SEARCH: Keyword Matching
-    const keywords = message.split(" ").filter((w: string) => w.length > 3);
-    const regexQuery = keywords.join("|");
-
+    // 1. SEMANTIC SEARCH: Replace keyword regex with embedding-based retrieval
     let relevantSchemes: any[] = [];
     
-    // Only attempt DB connection if we have a valid URI
     if (process.env.MONGODB_URI) {
       try {
         if (mongoose.connection.readyState === 0) {
-            await mongoose.connect(process.env.MONGODB_URI);
+          await mongoose.connect(process.env.MONGODB_URI);
         }
         
-        relevantSchemes = await Scheme.find({
-          $or: [
-            { name: { $regex: regexQuery, $options: "i" } },
-            { description: { $regex: regexQuery, $options: "i" } },
-            { occupation: { $in: [new RegExp(regexQuery, "i")] } }
-          ]
-        }).limit(3);
+        // Use semantic search instead of keyword regex
+        const searchResults = await semanticSearch(message, { topK: 3, minScore: 0.2 });
+        relevantSchemes = searchResults.map(r => ({
+          ...r.scheme,
+          _relevanceScore: r.semanticScore,
+        }));
+        
+        console.log(`[Chat RAG] Semantic search: ${relevantSchemes.length} schemes found (scores: ${searchResults.map(r => r.semanticScore.toFixed(3)).join(', ')})`);
       } catch (dbError) {
-        console.warn("Database Search Failed, switching to LLM Knowledge:", dbError);
+        console.warn("Semantic Search Failed, switching to LLM Knowledge:", dbError);
       }
     }
 
-    // 2. CONTEXT PREP
+    // 2. CONTEXT PREP (Enriched with relevance scores)
     const contextText = relevantSchemes.map((s: any) => {
-      const ben = Array.isArray(s.benefits) ? s.benefits.join(", ") : "Various benefits";
       const docs = Array.isArray(s.required_docs) ? s.required_docs.join(", ") : "Standard ID proofs";
+      const rules = s.rules || {};
       
       return `
-      - Scheme Name: ${s.name}
+      - Scheme Name: ${s.name} (Relevance: ${((s._relevanceScore || 0) * 100).toFixed(0)}%)
         Description: ${s.description}
-        Benefits: ${ben}
-        Requirements: Age ${s.age_min}-${s.age_max}, Income < ₹${s.income_max}
+        Category: ${s.category || 'General'}
+        Requirements: Age ${rules.age_min || 0}-${rules.age_max || 100}, Income < ₹${rules.income_max || 'No limit'}
         Documents: ${docs}
       `;
     }).join("\n\n");
@@ -52,7 +49,7 @@ export async function POST(req: Request) {
     const systemPrompt = `
       You are "Sahayak Sarathi", an advanced AI assistant for the Government of India.
       
-      **CONTEXT FROM DATABASE:**
+      **CONTEXT FROM DATABASE (Retrieved via Semantic Search):**
       ${contextText || "No local data found."}
 
       **CRITICAL INSTRUCTIONS:**
@@ -96,7 +93,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ 
       reply: chatCompletion.choices[0]?.message?.content,
-      sources: relevantSchemes 
+      sources: relevantSchemes.map(s => ({ name: s.name, score: s._relevanceScore })),
     });
 
   } catch (error: any) {

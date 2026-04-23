@@ -1,53 +1,74 @@
+/**
+ * Search API — Hybrid Semantic + Keyword Search
+ * 
+ * Previous: Groq LLM keyword extraction → MongoDB regex (LLM-dependent, slow)
+ * Current:  Local embedding → cosine similarity + keyword boost (fast, free, genuinely semantic)
+ * 
+ * Upgrade Path: Replace in-app similarity with MongoDB Atlas $vectorSearch
+ */
+
 import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
-import Scheme from '@/models/Scheme';
-import Groq from "groq-sdk";
-
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+import SearchLog from '@/models/SearchLog';
+import { hybridSearch, semanticSearch } from '@/lib/vectorSearch';
 
 export async function POST(req: Request) {
+  const startTime = Date.now();
+  
   try {
-    const { query } = await req.json();
+    const { query, method = 'hybrid' } = await req.json();
 
-    if (!query) return NextResponse.json([]);
+    if (!query || query.trim().length === 0) {
+      return NextResponse.json([]);
+    }
 
-    // 1. Ask AI to extract "Searchable Keywords" from the natural language
-    const chatCompletion = await groq.chat.completions.create({
-      messages: [
-        {
-          role: "system",
-          content: `You are a search query optimizer. 
-          User will give a problem (e.g., "I need money for crops").
-          You must output 3-4 keywords related to Indian Government Schemes (e.g., "Farmer Agriculture Loan Kisan").
-          Output ONLY the space-separated keywords.`
-        },
-        { role: "user", content: query }
-      ],
-      model: "llama-3.3-70b-versatile",
-    });
+    // Ensure DB connected (for cache + logging)
+    if (process.env.MONGODB_URI && mongoose.connection.readyState === 0) {
+      await mongoose.connect(process.env.MONGODB_URI);
+    }
 
-    const aiKeywords = chatCompletion.choices[0]?.message?.content || query;
-    const searchTerms = (aiKeywords || "").split(" ").filter((w: string) => w.length > 2);
+    // Execute search based on method
+    let results;
+    if (method === 'semantic') {
+      results = await semanticSearch(query, { topK: 5 });
+    } else {
+      results = await hybridSearch(query, { topK: 5 });
+    }
 
-    console.log(`User: "${query}" -> AI Keywords:`, searchTerms);
+    const latency = Date.now() - startTime;
 
-    // 2. Connect & Search DB using Regex
-    await mongoose.connect(process.env.MONGODB_URI!);
+    // Log search with metrics
+    try {
+      await SearchLog.create({
+        query,
+        search_method: method === 'semantic' ? 'pure_semantic' : 'hybrid_semantic',
+        top_result_score: results.length > 0 ? results[0].combinedScore : 0,
+        result_count: results.length,
+        latency_ms: latency,
+        semantic_scores: results.map(r => r.semanticScore),
+      });
+    } catch (logErr) {
+      // Non-blocking: don't fail search if logging fails
+      console.warn('[Search] Log write failed:', logErr);
+    }
 
-    const schemes = await Scheme.find({
-      $or: [
-        // Match Name or Description
-        { name: { $regex: searchTerms.join("|"), $options: "i" } },
-        { description: { $regex: searchTerms.join("|"), $options: "i" } },
-        // Also check if occupation array matches any keyword (e.g. "Farmer")
-        { occupation: { $in: searchTerms.map((t: string) => new RegExp(t, "i")) } }
-      ]
-    }).limit(5);
+    console.log(`[Search] "${query}" → ${results.length} results (${latency}ms, method=${method})`);
 
-    return NextResponse.json(schemes);
+    // Return full scheme data with scores
+    const response = results.map(r => ({
+      ...r.scheme,
+      _searchMeta: {
+        semanticScore: Math.round(r.semanticScore * 1000) / 1000,
+        keywordScore: Math.round(r.keywordScore * 1000) / 1000,
+        combinedScore: Math.round(r.combinedScore * 1000) / 1000,
+        method: r.method,
+      },
+    }));
+
+    return NextResponse.json(response);
 
   } catch (error) {
-    console.error("Smart Search Error:", error);
+    console.error("Search Error:", error);
     return NextResponse.json([], { status: 500 });
   }
 }

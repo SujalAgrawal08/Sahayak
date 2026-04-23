@@ -1,3 +1,10 @@
+/**
+ * Kendras API — Geospatial Center Discovery with Distance Ranking
+ * 
+ * Previous: Basic $near query returning unordered results
+ * Current: $geoNear aggregation returning sorted results WITH computed distances
+ */
+
 import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import Kendra from '@/models/Kendra';
@@ -9,22 +16,40 @@ export async function GET(req: Request) {
     const lat = searchParams.get('lat');
     const lng = searchParams.get('lng');
 
-    let query = {};
     if (lat && lng) {
-      // Find locations within 500km radius
-      query = {
-        location: {
-          $near: {
-            $geometry: { type: "Point", coordinates: [parseFloat(lng), parseFloat(lat)] },
-            $maxDistance: 500000 // 500 km
-          }
-        }
-      };
+      // Use $geoNear aggregation for distance-based ranking
+      const kendras = await Kendra.aggregate([
+        {
+          $geoNear: {
+            near: {
+              type: "Point",
+              coordinates: [parseFloat(lng), parseFloat(lat)],
+            },
+            distanceField: "distance_meters",   // Computed distance in meters
+            maxDistance: 500000,                  // 500 km radius
+            spherical: true,
+          },
+        },
+        { $limit: 20 },
+        {
+          $addFields: {
+            distance_km: {
+              $round: [{ $divide: ["$distance_meters", 1000] }, 1],
+            },
+          },
+        },
+        { $sort: { distance_meters: 1 } },       // Nearest first
+      ]);
+
+      return NextResponse.json(kendras);
     }
 
-    const kendras = await Kendra.find(query).limit(20);
+    // Fallback: No coordinates provided
+    const kendras = await Kendra.find({}).limit(20);
     return NextResponse.json(kendras);
+    
   } catch (error: any) {
+    console.error("[Kendras API]", error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

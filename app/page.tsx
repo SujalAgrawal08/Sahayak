@@ -83,7 +83,7 @@ export default function Home() {
   if (status === "unauthenticated") return <LandingPage />;
 
   return (
-    <main className="min-h-screen pt-36 pb-20 px-4 md:px-8 max-w-[1600px] mx-auto font-sans">
+    <main className="min-h-screen pt-36 pb-20 px-4 md:px-8 max-w-[1600px] mx-auto font-sans" role="main" aria-label="SahayakX Dashboard">
       
       {/* 1. HERO SECTION (Dynamic) */}
       <div className="text-center mb-12 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -216,6 +216,18 @@ export default function Home() {
               currentData={formData}
               onUpdate={(d) => setFormData(d)}
               lang={uiLang}
+              onSearch={(query) => {
+                // Trigger search by programmatically setting SmartSearch query
+                const searchInput = document.getElementById('smart-search-input') as HTMLInputElement;
+                if (searchInput) {
+                  const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+                  nativeInputValueSetter?.call(searchInput, query);
+                  searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+              }}
+              onNavigate={(target) => navigate(target)}
+              onCheckEligibility={() => checkEligibility()}
+              currentResults={results?.eligible}
             />
           </div>
           <div className="group bg-white rounded-[2rem] p-1.5 border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-500">
@@ -332,7 +344,7 @@ export default function Home() {
         </div>
 
         {/* BLOCK C: The Results Feed (Dynamic) */}
-        <div className="md:col-span-12 lg:col-span-8">
+        <div className="md:col-span-12 lg:col-span-8" role="region" aria-label="Eligibility results">
           {!results ? (
             <div className="h-full min-h-[600px] flex flex-col items-center justify-center bg-white rounded-[2.5rem] border border-slate-100 p-12 text-center shadow-xl shadow-slate-200/50">
               <div className="w-32 h-32 bg-rose-50 rounded-full flex items-center justify-center mb-6 animate-pulse">
